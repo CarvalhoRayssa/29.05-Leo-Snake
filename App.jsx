@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 //import {format} from 'date-fns'
 import './App.css';
 
@@ -53,6 +53,103 @@ const SnakeGame = () => {
   useEffect(() => {
     foodRef.current = food;
   }, [food]);
+
+  const createSnake = () => {
+    const canvas = document.getElementById('snake');
+
+    //getContext vai pegar o elemento e criar um quadrado que representará a cobra
+    const context = canvas.getContext ('2d');
+    for(let i = 0; i < snakeRef.current.length; i++){
+      context.fillStyle = 'green'
+      context.fillRect(snakeRef.current[i].x, snakeRef.current[i].y, 32, 32);
+
+    }
+  }
+
+  const createBG = () => {
+    const canvas = document.getElementById('snake');
+    const context = canvas.getContext ('2d');
+
+    context.fillStyle = 'white'
+    context.fillRect(0, 0, 16 * 32, 16 * 32);
+  }
+
+  const createFood = () => {
+    
+    const canvas = document.getElementById('snake');
+    const context = canvas.getContext('2d');
+
+    context.fillStyle = 'red'
+    context.fillRect(foodRef.current.x, foodRef.current.y, 32, 32)
+  }
+
+  const startGame = () => {
+    let newSnake = [...snakeRef.current]
+    let head = {...newSnake[0]}
+
+    switch(directionRef.current) {
+      case 'right':
+        head.x += 32;
+        break;
+        case 'left':
+          head.x -= 32;
+          break;
+          case 'up':
+            head.y -= 32;
+            break;
+            case 'down':
+              head.y += 32;
+              break;
+
+    }
+
+    //faz com que a cobrinha passe pelas bordas
+    if (head.x >= 16 * 32) head.x = 0;
+    if (head.x < 0) head.x = 15 * 32;
+    if (head.y >= 16 * 32) head.y = 0;
+    if (head.y < 0) head.y = 15 * 32;
+
+    //verifica se a cobrinha relou na própria cauda
+    for(let i=0; i < newSnake.length; i++) {
+      if(head.x === newSnake[i].x && head.y === newSnake[i].y) {
+        alert('Game Over.😫')
+        return;
+      }
+    }
+
+    //método unshift insere o objeto 'head' em 'newSnake'
+    newSnake.unshift(head)
+
+    //verifica se a cobrinha comeu a maçã
+    if(head.x === foodRef.current.x && head.y === foodRef.current.y){
+      const newFood
+ = {
+  x: Math.floor(Math.random() * 15 + 1) * 32,
+  y: Math.floor(Math.random() * 15 + 1) * 32,
+ } 
+
+setFood(newFood);
+foodRef.current = newFood;
+} else {
+  newSnake.pop()
 }
 
-  export default App;
+//atualizando a versão da cobra para nova cobra, onde ela muda de posição
+setSnake(newSnake)
+
+//chamando as funções para criar o background, maçã e a cobra
+createBG();
+createFood();
+createSnake();
+
+  };
+   
+  return (
+    <div>
+      <h1>Snake Game: 🐍</h1>
+      <canvas id="snake" width="512" height="512"></canvas>
+    </div>
+  )
+}
+
+  export default SnakeGame;
